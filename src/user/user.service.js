@@ -1,6 +1,6 @@
-// 📁 src/user/user.service.js
 const bcrypt = require("bcrypt");
-const userModel = require("../model/user.model");
+const db = require("../model"); // src/model/index.js
+const User = db.User;
 
 /**
  * ✅ 회원가입 서비스
@@ -8,7 +8,7 @@ const userModel = require("../model/user.model");
  * @returns {Number} 새 유저의 ID
  */
 exports.signupUser = async (userData) => {
-  const existingUser = await userModel.findByEmail(userData.email);
+  const existingUser = await User.findOne({ where: { email: userData.email } });
   if (existingUser) {
     throw new Error("이미 등록된 이메일입니다.");
   }
@@ -23,8 +23,8 @@ exports.signupUser = async (userData) => {
   };
 
   // 📌 DB에 사용자 저장
-  const userId = await userModel.createUser(userWithHashedPassword);
-  return userId;
+  const user = await User.create(userWithHashedPassword);
+  return user.id;
 };
 
 /**
@@ -34,11 +34,16 @@ exports.signupUser = async (userData) => {
  * @returns {Object} 로그인 성공한 사용자 정보
  */
 exports.loginUser = async (email, password) => {
-  const user = await userModel.findByEmail(email);
+  const user = await User.findOne({ where: { email } });
   if (!user) throw new Error("존재하지 않는 이메일입니다.");
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error("비밀번호가 일치하지 않습니다.");
+
+  await User.update(
+    { access_token: "null", refresh_token: "null" },
+    { where: { email } }
+  );
 
   // ✅ 로그인 성공 → 필요한 정보만 반환
   return {
@@ -47,7 +52,7 @@ exports.loginUser = async (email, password) => {
     nickname: user.nickname,
   };
 
-  // 아마 여기에서 로그인 하고 access, refresh 토큰을 만들어서 saveToken하는 부분일 것임 ***********
+  // 여기서 access/refresh 토큰 발급 및 저장 로직도 추가 가능
 };
 
 /**
@@ -55,5 +60,12 @@ exports.loginUser = async (email, password) => {
  * @param {String} email - 로그아웃할 사용자 이메일
  */
 exports.logoutUser = async (email) => {
-  await userModel.clearTokens(email);
+  await User.update(
+    { access_token: null, refresh_token: null },
+    { where: { email } }
+  );
 };
+
+// 토큰 발급
+// 알고리즘
+// sqld 유튭 강의
