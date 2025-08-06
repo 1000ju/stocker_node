@@ -1,7 +1,7 @@
 // server.js
 
 // 📦 app.js에서 정의된 Express 앱 불러오기
-const app = require("./app");
+const app = require("./src/app");
 
 // 🌱 .env 파일에서 환경 변수 로드 (PORT 등)
 require("dotenv").config();

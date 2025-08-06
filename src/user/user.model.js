@@ -20,7 +20,7 @@ const UserModel = {
     occupation,
   }) => {
     const query = `
-      INSERT INTO users 
+      INSERT INTO user 
         (email, password, nickname, profile_image_url, provider, age, occupation, created_date)
       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
     `;
@@ -47,7 +47,7 @@ const UserModel = {
    * @returns {Object|null} 유저 정보 객체 or null
    */
   findByEmail: async (email) => {
-    const query = `SELECT * FROM users WHERE email = ?`;
+    const query = `SELECT * FROM user WHERE email = ?`;
 
     // 📌 이메일은 UNIQUE 설정되어 있으므로 1개만 반환됨
     const [rows] = await db.execute(query, [email]);
@@ -62,7 +62,7 @@ const UserModel = {
    */
   clearTokens: async (email) => {
     const query = `
-      UPDATE users 
+      UPDATE user 
       SET access_token = NULL, refresh_token = NULL
       WHERE email = ?
     `;
@@ -78,7 +78,7 @@ const UserModel = {
    */
   saveTokens: async (email, access_token, refresh_token) => {
     const query = `
-      UPDATE users 
+      UPDATE user
       SET access_token = ?, refresh_token = ?
       WHERE email = ?
     `;
