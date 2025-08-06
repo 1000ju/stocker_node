@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const db = require("../model"); // src/model/index.js
+const jwtUtil = require("../utils/jwt.util");
+const { use } = require("./user.route");
 const User = db.User;
 
 /**
@@ -15,15 +17,11 @@ exports.signupUser = async (userData) => {
 
   // 📌 비밀번호 해싱
   const hashedPassword = await bcrypt.hash(userData.password, 10);
-
   // 📌 해시된 비밀번호로 덮어쓰기
-  const userWithHashedPassword = {
-    ...userData,
-    password: hashedPassword,
-  };
+  userData.password = hashedPassword;
 
   // 📌 DB에 사용자 저장
-  const user = await User.create(userWithHashedPassword);
+  const user = await User.create(userData);
   return user.id;
 };
 
@@ -40,8 +38,24 @@ exports.loginUser = async (email, password) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error("비밀번호가 일치하지 않습니다.");
 
+  // ✅ JWT 발급
+  // plain object로 변환
+  const userObj = user.get
+    ? user.get({ plain: true })
+    : { id: user.id, email: user.email, nickname: user.nickname };
+
+  // AccessToken/RefreshToken 발급 시
+  const accessToken = jwtUtil.createAccessToken({
+    id: userObj.id,
+    email: userObj.email,
+    nickname: userObj.nickname,
+  });
+  const refreshToken = jwtUtil.createRefreshToken({
+    id: userObj.id,
+  });
+
   await User.update(
-    { access_token: "null", refresh_token: "null" },
+    { access_token: accessToken, refresh_token: refreshToken },
     { where: { email } }
   );
 
@@ -50,6 +64,8 @@ exports.loginUser = async (email, password) => {
     id: user.id,
     email: user.email,
     nickname: user.nickname,
+    access_token: accessToken,
+    refresh_token: refreshToken,
   };
 
   // 여기서 access/refresh 토큰 발급 및 저장 로직도 추가 가능

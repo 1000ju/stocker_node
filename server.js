@@ -6,8 +6,8 @@ const app = require("./src/app");
 // 🌱 .env 파일에서 환경 변수 로드 (PORT 등)
 require("dotenv").config();
 
-// 포트 번호 설정: .env에 PORT가 있으면 그걸 쓰고, 없으면 기본값 3000
-const PORT = process.env.PORT || 3000;
+// 포트 번호 설정: .env에 PORT가 있으면 그걸 쓰고, 없으면 기본값 8080
+const PORT = process.env.PORT || 8080;
 
 // 🚀 서버 시작 + 예외 처리 추가
 app.listen(PORT, () => {
