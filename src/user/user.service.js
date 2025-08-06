@@ -1,6 +1,6 @@
 // 📁 src/user/user.service.js
 const bcrypt = require("bcrypt");
-const userModel = require("./user.model");
+const userModel = require("../model/user.model");
 
 /**
  * ✅ 회원가입 서비스

@@ -89,3 +89,6 @@ const UserModel = {
 
 // ✅ 외부에서 UserModel을 사용할 수 있게 export
 module.exports = UserModel;
+
+/// orm으로 쿼리 다시 수정
+// jwt 토큰 발급
