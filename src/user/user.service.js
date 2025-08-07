@@ -81,7 +81,3 @@ exports.logoutUser = async (email) => {
     { where: { email } }
   );
 };
-
-// 토큰 발급
-// 알고리즘
-// sqld 유튭 강의
