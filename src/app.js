@@ -1,15 +1,17 @@
-console.log("app.js 시작");
-
 // app.js
 const dotenv = require("dotenv");
 dotenv.config(); // ✅ .env 파일을 환경변수로 등록
-console.log("SESSION_SECRET 미엄;닝러;민어ㅏ:", process.env.SESSION_SECRET);
+console.log("🧶 SESSION_SECRET :", process.env.SESSION_SECRET);
 
 const express = require("express");
 const session = require("express-session");
 const userRoutes = require("./user/user.route"); // 유저 라우터
+const cors = require("cors");
 
 const app = express();
+
+//app.use(cors());는 "실행 결과인 미들웨어"를 전달
+app.use(cors());
 
 // ✅ JSON 형태의 요청 body를 파싱할 수 있도록 설정
 app.use(express.json());
@@ -29,6 +31,6 @@ app.use(
 );
 
 // ✅ 라우터 등록
-app.use("/users", userRoutes); // ex) POST /users/login
+app.use("/user", userRoutes); // ex) POST /users/login
 
 module.exports = app;
