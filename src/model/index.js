@@ -13,6 +13,7 @@ const sequelize = new Sequelize(
   {
     host: dbConfig.host,
     dialect: dbConfig.dialect,
+    dialect: 'mysql',
     logging: false, // 콘솔에 SQL문 안 보이게
   }
 );
