@@ -11,32 +11,9 @@ const userService = require("./user.service");
  */
 exports.signup = async (req, res) => {
   try {
-    // 📥 클라이언트로부터 받은 회원가입 정보 파싱
-    const {
-      email,
-      password,
-      nickname,
-      profile_image_url,
-      provider,
-      age,
-      occupation,
-    } = req.body;
-
-    // 🔧 서비스에 회원가입 요청 → DB에 INSERT 수행
-    const userId = await userService.signupUser({
-      email,
-      password,
-      nickname,
-      profile_image_url,
-      provider,
-      age,
-      occupation,
-    });
-
-    // ✅ 회원가입 성공 응답
-    res.status(201).json({ message: "회원가입 성공", userId });
+    const id = await userService.signupUser(req.body);
+    res.status(201).json({ message: "회원가입 성공", userId: id });
   } catch (err) {
-    // ⚠️ 유효성 실패, 중복 이메일 등 오류 처리
     res.status(400).json({ message: err.message });
   }
 };
@@ -55,11 +32,11 @@ exports.login = async (req, res) => {
     // 🔐 서비스 로직으로 사용자 검증 (비밀번호 비교 등)
     const user = await userService.loginUser(email, password);
 
-    // 🗂️ 로그인 성공 → 세션에 사용자 정보 저장
-    req.session.user = user;
-
-    // ✅ 로그인 성공 응답
-    res.status(200).json({ message: "로그인 성공", user });
+    // 세션이 아니라 토큰을 응답으로 전달
+    res.status(200).json({
+      message: "로그인 성공",
+      user,
+    });
   } catch (err) {
     // ⚠️ 이메일 또는 비밀번호 불일치
     res.status(401).json({ message: err.message });
@@ -72,28 +49,12 @@ exports.login = async (req, res) => {
  * @desc    세션 종료 및 DB 내 저장된 토큰 제거
  * @access  Private (로그인한 사용자만 가능)
  */
-exports.logout = (req, res) => {
-  // 🔐 세션에 사용자 정보가 없을 경우 (비로그인 상태)
-  if (!req.session.user) {
-    return res.status(400).json({ message: "로그인 상태가 아닙니다." });
+exports.logout = async (req, res) => {
+  try {
+    const { email } = req.body;
+    await userService.logoutUser(email);
+    res.status(200).json({ message: "로그아웃 성공" });
+  } catch (err) {
+    res.status(500).json({ message: "로그아웃 실패" });
   }
-
-  // 📌 세션에서 사용자 이메일 추출
-  const email = req.session.user.email;
-
-  // 🧹 세션 파기
-  req.session.destroy(async (err) => {
-    if (err) return res.status(500).json({ message: "로그아웃 실패" });
-
-    try {
-      // 🔧 DB에 저장된 토큰 제거
-      await userService.logoutUser(email);
-
-      // ✅ 로그아웃 성공 응답
-      res.status(200).json({ message: "로그아웃 완료" });
-    } catch (err) {
-      // ⚠️ DB 업데이트 중 에러
-      res.status(500).json({ message: "DB 토큰 삭제 실패" });
-    }
-  });
 };
