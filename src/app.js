@@ -3,7 +3,7 @@ console.log("app.js 시작");
 // app.js
 const dotenv = require("dotenv");
 dotenv.config(); // ✅ .env 파일을 환경변수로 등록
-console.log("SESSION_SECRET 미엄;닝러;민어ㅏ:", process.env.SESSION_SECRET);
+console.log("🧶 SESSION_SECRET :", process.env.SESSION_SECRET);
 
 const express = require("express");
 const session = require("express-session");
@@ -29,6 +29,6 @@ app.use(
 );
 
 // ✅ 라우터 등록
-app.use("/users", userRoutes); // ex) POST /users/login
+app.use("/user", userRoutes); // ex) POST /users/login
 
 module.exports = app;
