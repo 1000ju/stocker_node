@@ -6,6 +6,7 @@ console.log("🧶 SESSION_SECRET :", process.env.SESSION_SECRET);
 const express = require("express");
 const session = require("express-session");
 const userRoutes = require("./user/user.route"); // 유저 라우터
+const attendance = require("./attendance/attendance.route"); // 출석 라우터
 const cors = require("cors");
 
 const app = express();
@@ -31,6 +32,7 @@ app.use(
 );
 
 // ✅ 라우터 등록
-app.use("/user", userRoutes); // ex) POST /users/login
+app.use("/user", userRoutes); // ex) POST /user/login
+app.use("/attendance", attendance);
 
 module.exports = app;

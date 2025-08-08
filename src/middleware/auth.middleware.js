@@ -40,6 +40,7 @@
 // 📁 src/auth/auth.middleware.js
 
 const jwt = require("jsonwebtoken");
+const jwtUtil = require("../utils/jwt.util");
 require("dotenv").config(); // .env 파일에서 ACCESS_SECRET 불러오기
 
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
