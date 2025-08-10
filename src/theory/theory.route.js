@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const theoryController = require("../controllers/theory.controller");
-const authMiddleware = require("../middleware/authMiddleware");
+const theoryController = require("../theory/theory.controller");
+const authMiddleware = require("../middleware/auth.middleware");
 
 // JWT 인증 먼저 통과해야 접근 가능
 router.use(authMiddleware);

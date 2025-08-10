@@ -1,6 +1,6 @@
 // 📁 src/services/wrongNote.service.js
 
-const { WrongNote, Quiz } = require("../models");
+const { WrongNote, Quiz } = require("../model");
 
 /**
  * 📌 오답노트 조회: 유저가 틀린 문제들 반환

@@ -1,6 +1,6 @@
 // 📁 src/services/theory.service.js
 
-const { Theory, ChapterProgress } = require("../models");
+const { Theory, ChapterProgress } = require("../model");
 
 /**
  * 📌 이론 슬라이드 진입 시 전체 페이지 + 현재 진도 반환

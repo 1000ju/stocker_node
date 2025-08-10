@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Word: {
+    word: { // 컬럼명은 소문자 시작이 일반적
       type: DataTypes.STRING(255),
       allowNull: false,
     },
@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+  }, {
+    tableName: "theory", // DB 실제 테이블명
+    timestamps: false     // createdAt, updatedAt 없으면 false
   });
 
   // 관계 설정 (1개의 챕터에 여러 이론이 있음)
@@ -30,3 +33,4 @@ module.exports = (sequelize, DataTypes) => {
 
   return Theory;
 };
+

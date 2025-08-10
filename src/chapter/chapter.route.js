@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 // 챕터 컨트롤러 불러오기
-const chapterController = require("../controllers/chapter.controller");
+const chapterController = require("../chapter/chapter.controller");
 
 // 인증 미들웨어 불러오기 (JWT 토큰 확인용)
-const authMiddleware = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/auth.middleware");
 
 // 모든 요청 전에 인증 미들웨어 적용
 router.use(authMiddleware);

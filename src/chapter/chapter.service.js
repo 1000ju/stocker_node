@@ -1,7 +1,7 @@
 // 📁 src/services/chapter.service.js
 
 // Sequelize 모델들 불러오기
-const { Chapter, ChapterProgress } = require("../models");
+const { Chapter, ChapterProgress } = require("../model");
 
 /**
  * 📌 챕터 목록 + 유저의 진도 상태 함께 가져오기
@@ -11,7 +11,7 @@ const { Chapter, ChapterProgress } = require("../models");
 exports.getChaptersWithProgress = async (userId) => {
   // 1. 전체 챕터 조회 (id, title, description만)
   const chapters = await Chapter.findAll({
-    attributes: ["id", "title", "description"],
+    attributes: ["id", "title", "keyword"],
     raw: true, // 깔끔한 JSON 결과 반환
   });
 
@@ -34,7 +34,7 @@ exports.getChaptersWithProgress = async (userId) => {
     return {
       chapter_id: chapter.id,
       title: chapter.title,
-      description: chapter.description,
+      keyword: chapter.keyword,
       is_theory_completed: progress.is_theory_completed || false,
       is_quiz_completed: progress.is_quiz_completed || false,
     };

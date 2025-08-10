@@ -1,7 +1,7 @@
 // 📁 src/controllers/chapter.controller.js
 
 // 챕터 관련 서비스 함수 불러오기
-const chapterService = require("../services/chapter.service");
+const chapterService = require("../chapter/chapter.service");
 
 /**
  * 📌 챕터 목록 조회 컨트롤러

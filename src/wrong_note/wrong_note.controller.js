@@ -1,14 +1,14 @@
-// 📁 src/controllers/wrongNote.controller.js
-
-const wrongNoteService = require("../services/wrongNote.service");
+// 같은 폴더 안에 있으니 ./ 로 연결
+const wrongNoteService = require("./wrong_note.service");
 
 /**
- * 📌 [GET] /api/wrong-note/mypage?chapter_id=1
+ * 📌 [GET] /wrong-note/mypage?chapter_id=1
  * 오답노트 조회 (선택된 챕터 기준)
  */
 exports.getWrongNotes = async (req, res) => {
   try {
-    const userId = req.user.id;
+    // JWT 미적용 시 테스트용 값
+    const userId = req.user?.id || 1;
     const chapterId = req.query.chapter_id;
 
     if (!chapterId) {
@@ -22,3 +22,4 @@ exports.getWrongNotes = async (req, res) => {
     return res.status(500).json({ message: "서버 오류 발생" });
   }
 };
+

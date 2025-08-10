@@ -1,7 +1,7 @@
-/ 📁 src/controllers/theory.controller.js
+// 📁 src/controllers/theory.controller.js
 
 // 서비스 로직 불러오기
-const theoryService = require("../services/theory.service");
+const theoryService = require("./theory.service");
 
 /**
  * 📌 [POST] /api/theory/enter

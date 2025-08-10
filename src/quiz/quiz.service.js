@@ -1,4 +1,4 @@
-const { Quiz, ChapterProgress, WrongNote } = require("../models");
+const { Quiz, ChapterProgress, WrongNote } = require("../model");
 
 /**
  * 📌 퀴즈 진입: 문제 리스트 + 현재 위치 반환

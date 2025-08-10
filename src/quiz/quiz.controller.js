@@ -1,6 +1,6 @@
 // 📁 src/controllers/quiz.controller.js
 
-const quizService = require("../services/quiz.service");
+const quizService = require("../quiz/quiz.service");
 
 /**
  * 📌 [POST] /api/quiz/enter

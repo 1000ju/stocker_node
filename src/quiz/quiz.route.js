@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const quizController = require("../controllers/quiz.controller");
-const authMiddleware = require("../middleware/authMiddleware");
+const quizController = require("./quiz.controller");
+const authMiddleware = require("../middleware/auth.middleware");
 
 // 모든 요청은 토큰 인증 필요
 router.use(authMiddleware);
