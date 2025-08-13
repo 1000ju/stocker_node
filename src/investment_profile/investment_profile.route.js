@@ -3,6 +3,9 @@ const router = express.Router();
 const auth = require("../middleware/auth.middleware");
 const ctrl = require("./investment_profile.controller");
 
+// 0 검사지 제공
+router.get("/test", auth, ctrl.getQuestionnaire);
+
 // 1 저장(최초)
 router.post("/result", auth, ctrl.saveResult);
 

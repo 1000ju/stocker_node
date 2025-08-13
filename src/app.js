@@ -8,6 +8,8 @@ const session = require("express-session");
 const userRoutes = require("./user/user.route"); // 유저 라우터
 const attendance = require("./attendance/attendance.route"); // 출석 라우터
 const investment_profile = require("./investment_profile/investment_profile.route");
+const memo = require("./memo/memo.route");
+
 const cors = require("cors");
 
 const app = express();
@@ -36,5 +38,6 @@ app.use(
 app.use("/user", userRoutes); // ex) POST /user/login
 app.use("/attendance", attendance);
 app.use("/investment_profile", investment_profile);
+app.use("/memo", memo);
 
 module.exports = app;

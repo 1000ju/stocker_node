@@ -58,3 +58,16 @@ exports.logout = async (req, res) => {
     res.status(500).json({ message: "로그아웃 실패" });
   }
 };
+
+// 프로필 수정 컨트롤러
+exports.updateMyProfile = async (req, res) => {
+  try {
+    const updated = await userService.updateProfile(req.user.id, req.body);
+    res.json({
+      message: "프로필이 업데이트되었습니다.",
+      user: updated,
+    });
+  } catch (e) {
+    res.status(400).json({ message: e.message });
+  }
+};
