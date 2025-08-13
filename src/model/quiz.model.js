@@ -35,6 +35,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      hint: { type: DataTypes.TEXT, allowNull: true 
+        
+      },
     },
     {
       tableName: "quiz",   // DB 실제 테이블명

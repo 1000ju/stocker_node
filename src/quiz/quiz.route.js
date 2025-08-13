@@ -15,6 +15,8 @@ router.patch("/progress", quizController.updateQuizProgress);
 // [POST] /api/quiz/complete - 퀴즈 완료 + 오답 저장
 router.post("/complete", quizController.completeQuiz);
 
+router.post("/hint", quizController.getHint);
+
 module.exports = router;
 
 

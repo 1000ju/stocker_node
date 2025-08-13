@@ -66,3 +66,44 @@ exports.completeQuiz = async (req, res) => {
     return res.status(500).json({ message: "서버 오류 발생" });
   }
 };
+
+exports.getHint = async (req, res) => {
+  try {
+    // 어디로 오든 한 번에 처리
+    const rawId =
+      req.params?.quiz_id ?? req.query?.quiz_id ?? req.body?.quiz_id;
+
+    // 디버깅에 도움
+    // console.log("quiz_id sources:", {
+    //   params: req.params?.quiz_id,
+    //   query: req.query?.quiz_id,
+    //   body: req.body?.quiz_id,
+    //   contentType: req.headers["content-type"],
+    // });
+
+    const quizId = Number(rawId);
+    if (!Number.isInteger(quizId)) {
+      return res.status(400).json({ message: "quiz_id는 숫자여야 합니다." });
+    }
+
+    const hint = await quizService.getHintById(quizId);
+    if (!hint) {
+      return res.status(404).json({ message: "해당 퀴즈를 찾을 수 없습니다." });
+    }
+
+    return res.status(200).json({ quiz_id: quizId, hint });
+  } catch (e) {
+    console.error("힌트 조회 오류:", e);
+    return res.status(500).json({ message: "서버 오류 발생" });
+  }
+};
+
+// 👇 추가
+exports.getHintById = async (quizId) => {
+  const quiz = await Quiz.findOne({
+    where: { id: quizId },
+    attributes: ["hint"],
+    raw: true,
+  });
+  return quiz ? quiz.hint : null;
+};

@@ -10,7 +10,7 @@ exports.getQuizList = async (userId, chapterId) => {
 
   const quizzes = await Quiz.findAll({
     where: { chapter_id: cid },
-    attributes: ["id","question","option_1","option_2","option_3","option_4"],
+    attributes: ["id","question","option_1","option_2","option_3","option_4","hint"],
     order: [["id","ASC"]],
     raw: true,
   });
@@ -123,4 +123,21 @@ exports.submitQuiz = async (userId, chapterId, answers) => {
       wrong: quizzes.length - correctCount,
     };
   });
+};
+
+exports.getHint = async (req, res) => {
+  const quizId = parseInt(req.body.quiz_id, 10);
+  if (isNaN(quizId)) return res.status(400).json({ message: "quiz_id는 숫자여야 합니다." });
+  const hint = await quizService.getHintById(quizId);
+  if (!hint) return res.status(404).json({ message: "해당 퀴즈를 찾을 수 없습니다." });
+  return res.status(200).json({ quiz_id: quizId, hint });
+};
+
+exports.getHintById = async (quizId) => {
+  const quiz = await Quiz.findOne({
+    where: { id: quizId },
+    attributes: ["hint"],
+    raw: true,
+  });
+  return quiz ? quiz.hint : null;
 };
