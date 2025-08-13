@@ -1,33 +1,52 @@
-const { Quiz, ChapterProgress, WrongNote } = require("../model");
+const { Quiz, ChapterProgress } = require("../model");
+const { sequelize } = require("../model");
+const wrongNoteService = require("../wrong_note/wrong_note.service");
 
 /**
  * 📌 퀴즈 진입: 문제 리스트 + 현재 위치 반환
  */
 exports.getQuizList = async (userId, chapterId) => {
+  const cid = Number(chapterId);
+
   const quizzes = await Quiz.findAll({
-    where: { chapter_id: chapterId },
-    attributes: ["id", "question", "option_1", "option_2", "option_3", "option_4"],
-    order: [["id", "ASC"]],
+    where: { chapter_id: cid },
+    attributes: ["id","question","option_1","option_2","option_3","option_4"],
+    order: [["id","ASC"]],
     raw: true,
   });
 
+  // 퀴즈가 아예 없으면 안전하게 반환
+  if (!quizzes.length) {
+    await ChapterProgress.findOrCreate({
+      where: { user_id: userId, chapter_id: cid },
+      defaults: { current_quiz_id: null },
+    });
+    return { chapter_id: cid, quiz_list: [], current_quiz_id: null };
+  }
+
+  const firstId = Number(quizzes[0].id);
+
+  // 기존 진도 조회
   let progress = await ChapterProgress.findOne({
-    where: { user_id: userId, chapter_id: chapterId },
+    where: { user_id: userId, chapter_id: cid },
   });
 
-  // 처음이라면 진도 생성 + 첫 문제로 설정
   if (!progress) {
+    // 첫 진입: 첫 문제로 초기화
     progress = await ChapterProgress.create({
       user_id: userId,
-      chapter_id: chapterId,
-      current_quiz_id: quizzes[0]?.id || null,
+      chapter_id: cid,
+      current_quiz_id: firstId,
     });
+  } else if (progress.current_quiz_id == null) {
+    // 🔴 핵심 보정
+    await progress.update({ current_quiz_id: firstId });
   }
 
   return {
-    chapter_id: chapterId,
+    chapter_id: cid,
     quiz_list: quizzes,
-    current_quiz_id: progress.current_quiz_id,
+    current_quiz_id: Number(progress.current_quiz_id ?? firstId),
   };
 };
 
@@ -36,59 +55,72 @@ exports.getQuizList = async (userId, chapterId) => {
  */
 exports.saveQuizProgress = async (userId, chapterId, quizId) => {
   await ChapterProgress.update(
-    { current_quiz_id: quizId },
-    { where: { user_id: userId, chapter_id: chapterId } }
+    { current_quiz_id: Number(quizId) },
+    { where: { user_id: userId, chapter_id: Number(chapterId) } }
   );
 };
 
 /**
- * 📌 퀴즈 완료: 채점 + 오답 저장 + 완료 처리
+ * 📌 퀴즈 완료: 채점 + 오답 교체 저장(selected_option 포함) + 완료 처리
  */
 exports.submitQuiz = async (userId, chapterId, answers) => {
-  // 1. 해당 챕터의 퀴즈 모두 불러오기 (정답 확인용)
-  const quizzes = await Quiz.findAll({
-    where: { chapter_id: chapterId },
-    raw: true,
-  });
+  const cid = Number(chapterId);
 
-  // 2. 기존 오답노트 제거 (최신화 목적)
-  await WrongNote.destroy({
-    where: { user_id: userId, chapter_id: chapterId },
-  });
+  return await sequelize.transaction(async (t) => {
+    // 1) 챕터 퀴즈 로드 (정답만 필요)
+    const quizzes = await Quiz.findAll({
+      where: { chapter_id: cid },
+      attributes: ["id", "correct_option"],
+      raw: true,
+      transaction: t,
+    });
 
-  let correctCount = 0;
-  const wrongList = [];
+    // 2) 타입 정규화
+    const correctMap = new Map(
+      quizzes.map(q => [Number(q.id), Number(q.correct_option)])
+    );
 
-  // 3. 정답 비교 후 오답 저장할 목록 만들기
-  for (const quiz of quizzes) {
-    const userAnswer = answers.find((a) => a.quiz_id === quiz.id);
-    const isCorrect = userAnswer && userAnswer.selected_option === quiz.correct_option;
+    const answersNorm = (answers || []).map(a => ({
+      quiz_id: Number(a.quiz_id),
+      selected_option:
+        (a.selected_option === null || a.selected_option === undefined)
+          ? null
+          : Number(a.selected_option),
+    }));
 
-    if (isCorrect) {
-      correctCount++;
-    } else {
-      wrongList.push({
-        user_id: userId,
-        chapter_id: chapterId,
-        quiz_id: quiz.id,
-      });
+    const answersMap = new Map(
+      answersNorm.map(a => [a.quiz_id, a.selected_option])
+    );
+
+    // 3) 채점 + 오답 수집(selected_option 그대로)
+    let correctCount = 0;
+    const wrongItems = [];
+
+    for (const q of quizzes) {
+      const qid = Number(q.id);
+      const selected = answersMap.get(qid);    // number | null | undefined
+      const correct  = correctMap.get(qid);    // number
+
+      if (selected !== null && selected !== undefined && selected === correct) {
+        correctCount += 1;
+      } else {
+        wrongItems.push({ quiz_id: qid, selected_option: selected ?? null });
+      }
     }
-  }
 
-  // 4. 오답노트 저장 (틀린 문제만)
-  if (wrongList.length > 0) {
-    await WrongNote.bulkCreate(wrongList);
-  }
+    // 4) 완주 시 오답노트 교체 저장 (기존 삭제 → 새 세트 삽입)
+    await wrongNoteService.replaceForChapter(userId, cid, wrongItems);
 
-  // 5. 진도 완료 처리
-  await ChapterProgress.update(
-    { is_quiz_completed: true },
-    { where: { user_id: userId, chapter_id: chapterId } }
-  );
+    // 5) 진도 완료 처리 (포인터 초기화 포함)
+    await ChapterProgress.update(
+      { is_quiz_completed: true, current_quiz_id: null },
+      { where: { user_id: userId, chapter_id: cid }, transaction: t }
+    );
 
-  return {
-    total: quizzes.length,
-    correct: correctCount,
-    wrong: quizzes.length - correctCount,
-  };
+    return {
+      total: quizzes.length,
+      correct: correctCount,
+      wrong: quizzes.length - correctCount,
+    };
+  });
 };

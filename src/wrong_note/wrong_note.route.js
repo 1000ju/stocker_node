@@ -1,14 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const { getWrongNotes } = require("./wrong_note.controller");
+const auth = require("../middleware/auth.middleware");
 
-// 같은 폴더 안에 있으니 ./ 로 연결
-const wrongNoteController = require("./wrong_note.controller");
-
-// JWT 미적용 테스트 중이면 인증 주석 처리
-// const authMiddleware = require("../middleware/auth.middleware");
-// router.use(authMiddleware);
-
-// [GET] /wrong-note/mypage?chapter_id=1
-router.get("/", wrongNoteController.getWrongNotes);
+// 운영에선 auth 권장 (개발 중이면 잠깐 빼도 OK)
+router.get("/mypage", auth, getWrongNotes);
+router.post("/mypage", auth, getWrongNotes);
 
 module.exports = router;

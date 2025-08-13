@@ -16,3 +16,5 @@ router.patch("/progress", quizController.updateQuizProgress);
 router.post("/complete", quizController.completeQuiz);
 
 module.exports = router;
+
+

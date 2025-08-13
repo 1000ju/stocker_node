@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const db = require("../model"); // src/model/index.js
 const jwtUtil = require("../utils/jwt.util");
-const { use } = require("./user.route");
 const User = db.User;
 
 /**
