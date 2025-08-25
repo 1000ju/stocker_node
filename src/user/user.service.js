@@ -80,3 +80,55 @@ exports.logoutUser = async (email) => {
     { where: { email } }
   );
 };
+
+/**
+ * ✅ 유저 프로필 수정
+ * @param {number} userId - 컨트롤러에서 추출해 넘겨주는 유저 ID
+ * @param {object} updates - 요청 body(JSON) 그대로
+ */
+exports.updateProfile = async (userId, updates) => {
+  // 1) 존재하는 유저인지 확인
+  const exists = await User.findByPk(userId);
+  if (!exists) throw new Error("존재하지 않는 사용자입니다.");
+
+  // 2) 수정 허용 필드 화이트리스트
+  const allowedFields = [
+    "nickname",
+    "profile_image_url",
+    "age",
+    "occupation",
+    "provider",
+  ];
+
+  // 3) updates에서 허용된 필드만 추출
+  const payload = {};
+  allowedFields.forEach((field) => {
+    if (Object.prototype.hasOwnProperty.call(updates, field)) {
+      payload[field] = updates[field];
+    }
+  });
+
+  // 4) 변경할 항목이 없으면 에러
+  if (Object.keys(payload).length === 0) {
+    throw new Error("수정할 항목이 없습니다.");
+  }
+
+  // 5) DB 업데이트 실행
+  await User.update(payload, { where: { id: userId } });
+
+  // 6) 갱신된 데이터 재조회(민감정보 제외)
+  const updated = await User.findByPk(userId, {
+    attributes: [
+      "id",
+      "email",
+      "nickname",
+      "profile_image_url",
+      "provider",
+      "age",
+      "occupation",
+      "created_date",
+    ],
+  });
+
+  return updated;
+};

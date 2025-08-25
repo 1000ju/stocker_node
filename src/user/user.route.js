@@ -10,6 +10,8 @@ router.post("/login", userController.login);
 
 // 보호된 라우터 (보호 O)
 router.post("/logout", authMiddleware, userController.logout);
-//router.get("/mypage", authMiddleware, userController.getMyPage);
+
+//프로필 수정 컨트롤러 추가
+router.post("/profile", authMiddleware, userController.updateMyProfile);
 
 module.exports = router;

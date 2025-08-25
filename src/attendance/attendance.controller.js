@@ -1,11 +1,11 @@
 // controllers/attendanceController.js
 const attendanceService = require("../attendance/attendance.service");
 const { User } = require("../model"); // (O) 중괄호로 구조분해 할당!
+
 // 퀴즈 시작
 exports.startQuiz = async (req, res) => {
   try {
-    const user = await User.findOne({ where: { email: req.user.email } });
-    const userId = user.id;
+    const userId = req.user.id; // 토큰에서 바로 추출
     const quizzes = await attendanceService.startQuiz(userId);
     res.json({ quizzes });
   } catch (err) {
@@ -16,8 +16,7 @@ exports.startQuiz = async (req, res) => {
 // 출석 제출
 exports.submitAttendance = async (req, res) => {
   try {
-    const user = await User.findOne({ where: { email: req.user.email } });
-    const userId = user.id;
+    const userId = req.user.id; // 토큰에서 바로 추출
     const { isPresent } = req.body;
     const result = await attendanceService.submitAttendance(userId, isPresent);
     res.json(result);
@@ -29,8 +28,7 @@ exports.submitAttendance = async (req, res) => {
 // 당월 출석 이력 조회
 exports.getAttendanceHistory = async (req, res) => {
   try {
-    const user = await User.findOne({ where: { email: req.user.email } });
-    const userId = user.id;
+    const userId = req.user.id; // 토큰에서 바로 추출
     const history = await attendanceService.getMonthlyAttendanceHistory(userId);
     res.json({ history });
   } catch (err) {
