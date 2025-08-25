@@ -1,6 +1,7 @@
-// 📁 src/auth/auth.middleware.js
+
+
 const jwtUtil = require("../utils/jwt.util");
-require("dotenv").config(); // .env 파일에서 ACCESS_SECRET 불러오기
+require("dotenv").config();
 
 /**
  * ✅ JWT 검증 미들웨어 -> 인증이 필요한 라우팅에서 사용된다.
@@ -11,22 +12,38 @@ const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const refreshToken = req.headers["x-refresh-token"]; // 추가
   console.log("refreshToken from headers : ", refreshToken);
+const ACCESS_SECRET = process.env.ACCESS_SECRET;
 
-  // 📌 헤더가 없거나 'Bearer' 형식이 아닌 경우
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  console.log("=== [AUTH DEBUG] ===");
+  console.log("Authorization Header:", authHeader);
+  console.log("ACCESS_SECRET (검증):", ACCESS_SECRET);
+
+  
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.log("🚫 토큰이 제공되지 않음");
     return res.status(401).json({ message: "토큰이 제공되지 않았습니다." });
   }
 
-  const token = authHeader.split(" ")[1]; // Bearer 다음 공백 이후 토큰 추출
+  const token = authHeader.split(" ")[1];
+  console.log("받은 Access Token:", token);
 
   try {
     const decoded = jwtUtil.verifyAccessToken(token);
+    console.log("Access Token Decoded Payload:", decoded);
 
-    if (!decoded) throw new Error("만료 또는 변조된 토큰");
+    if (!decoded) {
+      console.log("🚫 jwtUtil.verifyAccessToken()이 null 반환");
+      throw new Error("만료 또는 변조된 토큰");
+    }
 
     req.user = decoded;
+    console.log("✅ 토큰 인증 성공, req.user:", req.user);
+    console.log("=====================");
     return next();
   } catch (err) {
+
     // ✅ Access Token 만료 → Refresh Token으로 재발급
     if (refreshToken) {
       try {
@@ -49,6 +66,10 @@ const verifyToken = (req, res, next) => {
       }
     }
 
+
+    console.log("❌ 인증 실패:", err.message);
+    console.log("=====================");
+    
     return res.status(401).json({ message: "유효하지 않은 토큰입니다." });
   }
 };

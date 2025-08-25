@@ -14,6 +14,9 @@ const sequelize = new Sequelize(
     host: dbConfig.host,
     dialect: dbConfig.dialect, // 반드시 dbConfig에 'mysql' 등 명시
     logging: false,
+    dialect: dbConfig.dialect,
+    dialect: 'mysql',
+    logging: false, // 콘솔에 SQL문 안 보이게
   }
 );
 

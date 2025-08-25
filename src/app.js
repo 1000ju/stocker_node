@@ -10,6 +10,10 @@ const attendance = require("./attendance/attendance.route"); // 출석 라우터
 const investment_profile = require("./investment_profile/investment_profile.route");
 const memo = require("./memo/memo.route");
 
+const chapterRoutes = require("./chapter/chapter.route"); // 챕터 라우터
+const theoryRoutes = require("./theory/theory.route"); // theory 라우터
+const quizRoutes = require("./quiz/quiz.route");
+const wrongNoteRoutes = require("./wrong_note/wrong_note.route");
 const cors = require("cors");
 
 const app = express();
@@ -34,10 +38,15 @@ app.use(
   })
 );
 
-// ✅ 라우터 등록
-app.use("/user", userRoutes); // ex) POST /user/login
+
+app.use("/user", userRoutes);
 app.use("/attendance", attendance);
 app.use("/investment_profile", investment_profile);
 app.use("/memo", memo);
+app.use("/chapters", chapterRoutes);
+app.use("/theory", theoryRoutes);
+app.use("/quiz", quizRoutes);
+app.use("/wrong_note", wrongNoteRoutes); // ⬅ 추가
+
 
 module.exports = app;
