@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       user_id: { type: DataTypes.INTEGER, allowNull: false },
       template_type: {
-        type: DataTypes.ENUM("일지", "일기", "체크리스트", "자유", "자무지프"),
+        type: DataTypes.ENUM("일지", "복기", "체크리스트", "자유", "재무제표"),
         allowNull: false,
       },
       content: { type: DataTypes.JSON, allowNull: false },
