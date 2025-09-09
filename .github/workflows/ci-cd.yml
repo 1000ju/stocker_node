@@ -54,17 +54,28 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # --- 추가: 배포 전 SSH 포트 도달성 체크 ---
+      - name: Check SSH reachability
+        run: |
+          H="${{ secrets.SSH_HOST }}"; P="${{ secrets.SSH_PORT || 22 }}"
+          timeout 5 bash -lc "echo > /dev/tcp/$H/$P" && echo "TCP $P open" || (echo "TCP $P blocked"; exit 1)
+
+      # --- 수정: SSH 배포(포트/패스프레이즈/디버그 명시) ---
       - name: Deploy (SSH)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY }} # -----BEGIN OPENSSH PRIVATE KEY----- ...
+          port: ${{ secrets.SSH_PORT || 22 }} # 비표준 포트면 Secrets에 SSH_PORT 추가
+          passphrase: ${{ secrets.SSH_PASSPHRASE || '' }}
           script_stop: true
+          debug: true
+          timeout: "60s"
+          command_timeout: "15m"
           script: |
             set -e
             cd ~/app/stocker_node-develop
-            # 불필요한 docker login 제거
             docker compose --env-file ./.env.production pull app
             docker compose --env-file ./.env.production up -d
             docker image prune -f
