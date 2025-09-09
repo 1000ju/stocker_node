@@ -54,19 +54,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # --- 추가: 배포 전 SSH 포트 도달성 체크 ---
       - name: Check SSH reachability
         run: |
           H="${{ secrets.SSH_HOST }}"; P="${{ secrets.SSH_PORT || 22 }}"
           timeout 5 bash -lc "echo > /dev/tcp/$H/$P" && echo "TCP $P open" || (echo "TCP $P blocked"; exit 1)
 
-      # --- 수정: SSH 배포(포트/패스프레이즈/디버그 명시) ---
       - name: Deploy (SSH)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }} # -----BEGIN OPENSSH PRIVATE KEY----- ...
+          key: ${{ secrets.SSH_KEY }} # -----BEGIN OPENSSH PRIVATE KEY----- …
           port: ${{ secrets.SSH_PORT || 22 }} # 비표준 포트면 Secrets에 SSH_PORT 추가
           passphrase: ${{ secrets.SSH_PASSPHRASE || '' }}
           script_stop: true
@@ -76,6 +74,7 @@ jobs:
           script: |
             set -e
             cd ~/app/stocker_node-develop
-            docker compose --env-file ./.env.production pull app
-            docker compose --env-file ./.env.production up -d
-            docker image prune -f
+            echo '${{ secrets.GHCR_TOKEN }}' | sudo docker login ghcr.io -u 1000ju --password-stdin
+            sudo docker compose --env-file ./.env.production pull app
+            sudo docker compose --env-file ./.env.production up -d
+            sudo docker image prune -f
