@@ -1,11 +1,25 @@
-node_modules
-npm-debug.log
-Dockerfile*
-.dockerignore
+# VCS / GitHub
 .git
 .gitignore
-.env
-.env.*
-coverage
+.github
+
+# Node
+node_modules
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+
+# Builds / coverage
 dist
-.tmp
+build
+coverage
+
+# Local env / configs
+.env*
+Dockerfile*
+docker-compose*.yml
+*.md
+README*
+
+# Misc
+*.log
