@@ -1,0 +1,53 @@
+services:
+  db:
+    image: mysql:8
+    container_name: stocker_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: stocker
+      MYSQL_USER: app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+    command: >
+      mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "127.0.0.1",
+          "-uapp",
+          "-p${MYSQL_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - stocker_network
+
+  app:
+    image: ghcr.io/<ORG_OR_USER>/<REPO>:latest # ← GHCR에 푸시되는 이미지 태그
+    pull_policy: always # ← 새 이미지 있을 때 항상 pull
+    container_name: stocker_app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env.production
+    ports:
+      - "8080:8080"
+    command: ["node", "server.js"]
+    networks:
+      - stocker_network
+
+volumes:
+  dbdata:
+
+networks:
+  stocker_network:
+    driver: bridge
