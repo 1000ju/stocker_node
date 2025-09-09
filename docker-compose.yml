@@ -31,7 +31,7 @@ services:
       - stocker_network
 
   app:
-    image: ghcr.io/<ORG_OR_USER>/<REPO>:latest # ← GHCR에 푸시되는 이미지 태그
+    image: ghcr.io/1000ju/stocker_node:latest # ← GHCR에 푸시되는 이미지 태그
     pull_policy: always # ← 새 이미지 있을 때 항상 pull
     container_name: stocker_app
     restart: always
