@@ -3,13 +3,12 @@ services:
   db:
     image: mysql:8
     container_name: stocker_db
-    restart: always
+    restart:
+      always
+      # ⬇️ 여기엔 MYSQL_* 넣지 말고 부가값만
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: stocker
-      MYSQL_USER: app
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       TZ: Asia/Seoul
+
     command: >
       mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
     healthcheck:
