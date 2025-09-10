@@ -1,0 +1,758 @@
+openapi: 3.0.0
+info:
+  title: Stock Edu API
+  version: 1.0.0
+servers:
+  - url: http://168.107.22.83:8080/api
+    description: production (OCI VM direct, 8080 포트 노출)
+  - url: http://localhost:8080/api
+    description: local development
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    refreshToken:
+      type: apiKey
+      in: header
+      name: x-refresh-token
+  schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        message: { type: string }
+
+    # Auth/Profile
+    SignupRequest:
+      type: object
+      required: [email, password, nickname]
+      properties:
+        email: { type: string, format: email, example: user@example.com }
+        password: { type: string, minLength: 4, example: 1234abcd }
+        nickname: { type: string, example: 주환 }
+        age: { type: integer, example: 28 }
+        occupation: { type: string, example: 개발자 }
+        provider: { type: string, example: local }
+        profile_image_url:
+          { type: string, example: https://example.com/profile.png }
+    SignupResponse:
+      type: object
+      properties:
+        message: { type: string, example: 회원가입 성공 }
+        userId: { type: integer, example: 1 }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: user@example.com }
+        password: { type: string, example: 1234abcd }
+    LoginResponse:
+      type: object
+      properties:
+        message: { type: string, example: 로그인 성공 }
+        user:
+          type: object
+          properties:
+            id: { type: integer, example: 1 }
+            email: { type: string, example: user@example.com }
+            nickname: { type: string, example: 주환 }
+            access_token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
+            refresh_token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
+
+    LogoutRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        nickname: { type: string }
+        profile_image_url: { type: string }
+        age: { type: integer }
+        occupation: { type: string }
+    ProfileUpdateResponse:
+      type: object
+      properties:
+        message: { type: string, example: 프로필이 업데이트되었습니다. }
+        user:
+          type: object
+          properties:
+            id: { type: integer, example: 1 }
+            email: { type: string, example: user@example.com }
+            nickname: { type: string, example: 주환짱 }
+            profile_image_url:
+              { type: string, example: https://example.com/new-profile.png }
+            provider: { type: string, example: local }
+            age: { type: integer, example: 29 }
+            occupation: { type: string, example: 백엔드 개발자 }
+            created_date:
+              {
+                type: string,
+                format: date-time,
+                example: 2025-08-17T12:34:56.000Z,
+              }
+
+    # Chapters/Theory
+    TheoryEnterRequest:
+      type: object
+      required: [chapter_id]
+      properties:
+        chapter_id: { type: integer, example: 1 }
+        chpater_id:
+          type: integer
+          example: 1
+          deprecated: true
+          description: "오타 호환용, 가급적 chapter_id 사용"
+    TheoryEnterResponse:
+      type: object
+      properties:
+        theory_pages:
+          type: array
+          items:
+            type: object
+            properties:
+              page_no: { type: integer }
+              id: { type: integer }
+              Word: { type: string }
+              content: { type: string }
+        total_pages: { type: integer }
+        current_page: { type: integer }
+
+    TheoryProgressRequest:
+      type: object
+      required: [chapter_id, current_theory_id]
+      properties:
+        chapter_id: { type: integer, example: 1 }
+        current_theory_id: { type: integer, example: 2 }
+    TheoryCompleteRequest:
+      type: object
+      required: [chapter_id]
+      properties:
+        chapter_id: { type: integer, example: 1 }
+
+    # Quiz
+    QuizEnterRequest:
+      type: object
+      required: [chapter_id]
+      properties:
+        chapter_id: { type: integer, example: 1 }
+    QuizEnterResponse:
+      type: object
+      properties:
+        chapter_id: { type: integer }
+        quiz_list:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              question: { type: string }
+              option_1: { type: string }
+              option_2: { type: string }
+              option_3: { type: string }
+              option_4: { type: string }
+              hint: { type: string, nullable: true }
+        current_quiz_id: { type: integer }
+
+    QuizProgressRequest:
+      type: object
+      required: [chapter_id, current_quiz_id]
+      properties:
+        chapter_id: { type: integer, example: 1 }
+        current_quiz_id: { type: integer, example: 2 }
+        curent_quiz_id:
+          type: integer
+          example: 2
+          deprecated: true
+          description: "오타 호환용, 가급적 current_quiz_id 사용"
+
+    QuizCompleteRequest:
+      type: object
+      required: [chapter_id, answers]
+      properties:
+        chapter_id: { type: integer, example: 1 }
+        answers:
+          type: array
+          items:
+            type: object
+            required: [quiz_id, answer]
+            properties:
+              quiz_id: { type: integer, example: 1 }
+              answer: { type: integer, example: 2, description: 1~4 중 하나 }
+    QuizCompleteResponse:
+      type: object
+      properties:
+        total: { type: integer, example: 3 }
+        correct: { type: integer, example: 0 }
+        wrong: { type: integer, example: 3 }
+
+    # Wrong Note
+    WrongNoteItem:
+      type: object
+      properties:
+        quiz_id: { type: integer }
+        chapter_id: { type: integer }
+        question: { type: string }
+        options:
+          type: array
+          items: { type: string }
+        correct_option: { type: integer }
+        selected_option: { type: integer, nullable: true }
+        created_date: { type: string, example: "2025-08-27" }
+
+    # Attendance
+    AttendanceQuizItem:
+      type: object
+      properties:
+        quizOX_id: { type: integer }
+        question_OX: { type: string }
+        is_correct: { type: boolean }
+
+    # Investment Profile
+    InvestQuestion:
+      type: object
+      properties:
+        questionId: { type: integer }
+        version: { type: string }
+        globalNo: { type: integer }
+        dimCode: { type: string }
+        dimName: { type: string }
+        leftLabel: { type: string }
+        rightLabel: { type: string }
+        question: { type: string }
+        isReverse: { type: boolean }
+        note: { type: string, nullable: true }
+
+    InvestAnswers:
+      type: array
+      items:
+        type: object
+        properties:
+          globalNo: { type: integer }
+          answer: { type: integer }
+
+    InvestResult:
+      type: object
+      properties:
+        profile_id: { type: integer }
+        user_id: { type: integer }
+        type_code: { type: string }
+        matched_master:
+          type: array
+          items:
+            type: object
+            properties:
+              master_id: { type: integer }
+              name: { type: string }
+              bio: { type: string }
+              portfolio_summary: { type: string }
+              image_url: { type: string }
+              style: { type: string }
+              type_code: { type: string }
+              score: { type: number, nullable: true }
+
+    # Memo
+    Memo:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        template_type: { type: string }
+        content: { type: object }
+        created_at: { type: string, format: date-time }
+
+security: [] # 전역 보안 강제 안 함; 엔드포인트별 지정
+paths:
+  /health:
+    get:
+      summary: 헬스체크
+      tags: [Misc]
+      responses:
+        "200": { description: OK }
+
+  /user/signup:
+    post:
+      summary: 회원가입
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignupRequest" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SignupResponse" }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /user/login:
+    post:
+      summary: 로그인 (토큰 발급)
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /user/logout:
+    post:
+      summary: 로그아웃
+      tags: [Auth]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LogoutRequest" }
+      responses:
+        "200": { description: OK }
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /user/profile:
+    post:
+      summary: 프로필 수정
+      tags: [Profile]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileUpdateRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProfileUpdateResponse" }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /chapters:
+    get:
+      summary: 챕터 목록
+      tags: [Chapters]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    chapter_id: { type: integer }
+                    title: { type: string }
+                    keyword: { type: string, nullable: true }
+                    is_theory_completed: { type: integer }
+                    is_quiz_completed: { type: integer }
+
+  /theory/enter:
+    post:
+      summary: 이론 페이지 진입
+      tags: [Theory]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TheoryEnterRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TheoryEnterResponse" }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /theory/progress:
+    patch:
+      summary: 이론 페이지 최신화
+      tags: [Theory]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TheoryProgressRequest" }
+      responses:
+        "200": { description: OK }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /theory/complete:
+    patch:
+      summary: 이론 완료 처리
+      tags: [Theory]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TheoryCompleteRequest" }
+      responses:
+        "200": { description: OK }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /quiz/enter:
+    post:
+      summary: 퀴즈 진입
+      tags: [Quiz]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QuizEnterRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QuizEnterResponse" }
+
+  /quiz/progress:
+    patch:
+      summary: 퀴즈 페이지 최신화
+      tags: [Quiz]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QuizProgressRequest" }
+      responses:
+        "200": { description: OK }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /quiz/complete:
+    post:
+      summary: 퀴즈 완료/채점
+      tags: [Quiz]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QuizCompleteRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QuizCompleteResponse" }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /wrong_note/mypage:
+    get:
+      summary: 오답노트 조회 (특정 챕터)
+      tags: [WrongNote]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      parameters:
+        - in: query
+          name: chapter_id
+          required: false
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/WrongNoteItem" }
+
+  /attendance/quiz/start:
+    get:
+      summary: 출석 퀴즈 시작 (랜덤 3문제)
+      tags: [Attendance]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quizzes:
+                    type: array
+                    items: { $ref: "#/components/schemas/AttendanceQuizItem" }
+
+  /attendance/quiz/submit:
+    post:
+      summary: 출석 제출
+      tags: [Attendance]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isPresent: { type: boolean, example: true }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+        "400":
+          description: 출석정보 없음 등
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
+
+  /attendance/history:
+    get:
+      summary: 당월 출석 이력
+      tags: [Attendance]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date: { type: string, example: "2025-08-01" }
+                        is_present: { type: boolean }
+
+  /investment_profile/test:
+    get:
+      summary: 성향검사 문항 제공
+      tags: [InvestmentProfile]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      parameters:
+        - in: query
+          name: version
+          required: false
+          schema: { type: string, example: v1.1 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version: { type: string }
+                  questions:
+                    type: array
+                    items: { $ref: "#/components/schemas/InvestQuestion" }
+
+  /investment_profile/result:
+    post:
+      summary: 최초 결과 저장
+      tags: [InvestmentProfile]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: { type: string, example: v1.1 }
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      globalNo: { type: integer }
+                      answer: { type: integer }
+      responses:
+        "200":
+          description: Created/OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InvestResult" }
+    get:
+      summary: 결과 조회
+      tags: [InvestmentProfile]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InvestResult" }
+    put:
+      summary: 재검사 갱신
+      tags: [InvestmentProfile]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: { type: string, example: v1.1 }
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      globalNo: { type: integer }
+                      answer: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InvestResult" }
+
+  /investment_profile/masters:
+    get:
+      summary: 모든 거장 조회
+      tags: [InvestmentProfile]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    master_id: { type: integer }
+                    name: { type: string }
+                    bio: { type: string }
+                    portfolio_summary: { type: string }
+                    image_url: { type: string }
+                    style: { type: string }
+                    type_code: { type: string }
+
+  /memo/:
+    get:
+      summary: 유저 메모 전체 조회
+      tags: [Memo]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memos:
+                    type: array
+                    items: { $ref: "#/components/schemas/Memo" }
+    put:
+      summary: 메모 저장·갱신 (동일 엔드포인트)
+      tags: [Memo]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  description: 신규 저장
+                  properties:
+                    template_type: { type: string, example: 일기 }
+                    content: { type: object }
+                - type: object
+                  description: 기존 메모 갱신
+                  properties:
+                    id: { type: integer }
+                    template_type: { type: string }
+                    content: { type: object }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memo: { $ref: "#/components/schemas/Memo" }
+
+  /memo/{id}:
+    delete:
+      summary: 메모 삭제
+      tags: [Memo]
+      security: [{ bearerAuth: [], refreshToken: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorMessage" }
