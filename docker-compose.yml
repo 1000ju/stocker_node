@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:8.0 # ← 8(최신 메이저) 대신 8.0으로 고정 권장
+    image: mysql:8.0 # ← 8(최신 메이저) 대신 8.0으로 고정 권장 ok
     container_name: stocker_db
     restart: always
 
