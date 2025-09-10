@@ -1,3 +1,4 @@
+---
 services:
   db:
     image: mysql:8
@@ -29,10 +30,11 @@ services:
       - dbdata:/var/lib/mysql
     networks:
       - stocker_network
+    env_file: ./.env.production # 이 부분을 추가해야 합니다.
 
   app:
-    image: ghcr.io/1000ju/stocker_node:latest # ← GHCR에 푸시되는 이미지 태그
-    pull_policy: always # ← 새 이미지 있을 때 항상 pull
+    image: ghcr.io/1000ju/stocker_node:latest
+    pull_policy: always
     container_name: stocker_app
     restart: always
     depends_on:
