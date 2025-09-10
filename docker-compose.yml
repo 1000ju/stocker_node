@@ -1,35 +1,36 @@
----
 services:
   db:
     image: mysql:8
     container_name: stocker_db
-    restart:
-      always
-      # ⬇️ 여기엔 MYSQL_* 넣지 말고 부가값만
+    restart: always
+
+    # ⬇️ MYSQL_* 4종은 여기서 주입 (.env.production)
+    env_file:
+      - ./.env.production
+
+    # ⬇️ 부가 옵션만 남김 (MYSQL_*는 절대 넣지 않음)
     environment:
       TZ: Asia/Seoul
 
     command: >
       mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+
+    # ⬇️ 런타임 환경변수 확장이 되는 CMD-SHELL 사용
     healthcheck:
       test:
         [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "127.0.0.1",
-          "-uapp",
-          "-p${MYSQL_PASSWORD}",
+          "CMD-SHELL",
+          'mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD" || exit 1',
         ]
       interval: 10s
-      timeout: 3s
-      retries: 10
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
     volumes:
       - dbdata:/var/lib/mysql
     networks:
       - stocker_network
-    env_file: .env.production # 이 부분을 추가해야 합니다.
 
   app:
     image: ghcr.io/1000ju/stocker_node:latest
@@ -39,7 +40,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file: .env.production
+    env_file:
+      - ./.env.production
     ports:
       - "8080:8080"
     command: ["node", "server.js"]
