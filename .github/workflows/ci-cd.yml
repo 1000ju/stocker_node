@@ -64,8 +64,8 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }} # OpenSSH 개인키 전체 문자열
-          port: ${{ secrets.SSH_PORT || 22 }} # 필요 시 시크릿으로 지정
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           script_stop: true
           debug: true
           timeout: "60s"
@@ -73,24 +73,33 @@ jobs:
           script: |
             set -euo pipefail
 
-            # ✅ 서버에서 docker-compose.yml 이 있는 실제 폴더로 이동
-            REMOTE_DIR="${{ secrets.REMOTE_DIR || '/home/ubuntu/app' }}"
-            cd "$REMOTE_DIR"
+            # 1) compose 있는 폴더로 이동 (서버 실제 경로 확인해서 맞춰두기)
+            cd ~/app
 
-            # ✅ GHCR 로그인
+            # 2) 앱 이미지만 갱신
             echo '${{ secrets.GHCR_TOKEN }}' | sudo docker login ghcr.io -u 1000ju --password-stdin
-
-            # ✅ 앱 이미지만 최신으로 당겨오기 (DB 건드리지 않음)
             sudo docker compose pull app
 
-            # ✅ DB는 그대로 두고 app 서비스만 재생성 (이게 핵심)
+            # 3) DB는 건드리지 않고 app만 재생성
             sudo docker compose up -d --no-deps --force-recreate app
 
-            # (옵션) 오래된 이미지 정리
-            sudo docker image prune -af --filter "until=24h" || true
+            # 4) 헬스 대기 (최대 90초)
+            for i in $(seq 1 90); do
+              if curl -fsS http://localhost:8080/api/health >/dev/null; then
+                echo "Deploy OK"
+                break
+              fi
+              # 컨테이너가 죽었는지/재시작 중인지 점검
+              if ! sudo docker ps --format '{{.Names}}' | grep -q '^stocker_app$'; then
+                echo "app container is not running"; sudo docker logs --tail=200 stocker_app || true; exit 1
+              fi
+              # (선택) health 상태 확인
+              sudo docker inspect -f '{{.State.Health.Status}}' stocker_app 2>/dev/null || true
+              sleep 1
+              if [ "$i" -eq 90 ]; then
+                echo "Timeout waiting for /api/health"; sudo docker logs --tail=300 stocker_app || true; exit 1
+              fi
+            done
 
-            # ✅ 상태 점검
-            sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
-            sudo docker logs --tail=120 stocker_app || true
-            curl -fsS http://localhost:8080/api/health >/dev/null
-            echo "Deploy OK"
+            # 5) (옵션) 마이그레이션 자동실행이 필요할 때만 사용
+            # sudo docker exec stocker_app sh -lc 'npx --yes sequelize-cli db:migrate'
