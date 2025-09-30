@@ -1,21 +1,76 @@
+# services:
+#   db:
+#     image: mysql:8.0 # ← 8(최신 메이저) 대신 8.0으로 고정 권장 ok
+#     container_name: stocker_db
+#     restart: always
+
+#     # ⬇️ MYSQL_* 4종은 여기서 주입 (.env.production)
+#     env_file:
+#       - ./.env.production
+
+#     # ⬇️ 부가 옵션만 남김 (MYSQL_*는 절대 넣지 않음)
+#     environment:
+#       TZ: Asia/Seoul
+
+#     command: >
+#       mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+
+#     # ⬇️ 런타임 환경변수 확장이 되는 CMD-SHELL 사용 + 초기화 여유 확대
+#     healthcheck:
+#       test:
+#         [
+#           "CMD-SHELL",
+#           'mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD" || exit 1',
+#         ]
+#       interval: 10s
+#       timeout: 10s
+#       retries: 60
+#       start_period: 120s
+
+#     volumes:
+#       - dbdata:/var/lib/mysql
+#     networks:
+#       - stocker_network
+
+#   app:
+#     image: ghcr.io/1000ju/stocker_node:latest
+#     pull_policy: always
+#     container_name: stocker_app
+#     restart: always
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#     env_file:
+#       - ./.env.production
+#     ports:
+#       - "8080:8080"
+#     command: ["node", "server.js"]
+#     networks:
+#       - stocker_network
+
+# volumes:
+#   dbdata:
+
+# networks:
+#   stocker_network:
+#     driver: bridge
+
 services:
   db:
-    image: mysql:8.0 # ← 8(최신 메이저) 대신 8.0으로 고정 권장 ok
+    image: mysql:8.0
     container_name: stocker_db
     restart: always
 
-    # ⬇️ MYSQL_* 4종은 여기서 주입 (.env.production)
+    # .env 파일을 사용하도록 수정
     env_file:
-      - ./.env.production
+      - ./.env
 
-    # ⬇️ 부가 옵션만 남김 (MYSQL_*는 절대 넣지 않음)
     environment:
       TZ: Asia/Seoul
 
     command: >
       mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
 
-    # ⬇️ 런타임 환경변수 확장이 되는 CMD-SHELL 사용 + 초기화 여유 확대
     healthcheck:
       test:
         [
@@ -33,15 +88,21 @@ services:
       - stocker_network
 
   app:
-    image: ghcr.io/1000ju/stocker_node:latest
-    pull_policy: always
+    # ------------------ ⬇️ 여기가 핵심 수정사항 ⬇️ ------------------
+    build: .
+    # image: ghcr.io/1000ju/stocker_node:latest  <-- 주석 처리
+    # pull_policy: always                      <-- 주석 처리
+    # ------------------ ⬆️ 여기가 핵심 수정사항 ⬆️ ------------------
     container_name: stocker_app
     restart: always
     depends_on:
       db:
         condition: service_healthy
+    
+    # .env 파일을 사용하도록 수정
     env_file:
-      - ./.env.production
+      - ./.env
+
     ports:
       - "8080:8080"
     command: ["node", "server.js"]

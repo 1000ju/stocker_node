@@ -33,9 +33,9 @@
   USER node
   
   # 헬스체크(엔드포인트가 있을 때만 유지)
-  EXPOSE 8080
-  HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD \
-    node -e "require('http').get('http://localhost:${process.env.PORT||8080}/healthz', r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+  #EXPOSE 8080
+  #HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD \
+   # node -e "require('http').get('http://localhost:${process.env.PORT||8080}/healthz', r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
   
   # OCI label(패키지-레포 연결용; OWNER/REPO 맞게 수정)
   LABEL org.opencontainers.image.source="https://github.com/1000ju/stocker_node"

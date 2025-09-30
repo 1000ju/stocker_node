@@ -15,7 +15,7 @@
 "use strict";
 module.exports = {
   async up(q) {
-    await q.bulkInsert("chapters", [
+    await q.bulkInsert("chapter", [
       {
         id: 1,
         title: "주식 투자의 첫걸음",
@@ -37,6 +37,11 @@ module.exports = {
         id: 4,
         title: "기업 가치 평가: 핵심 투자 지표",
         keyword: "PER,PBR,PSR,ROE,ROA,EPS,BPS,SPS,EV/EBITDA,배당수익률,PEG",
+      },
+      {
+      id: 5,
+       title: "차트 분석의 기초: 기술적 분석 입문",
+       keyword: "기술적분석,기본적분석,캔들,거래량,이동평균선,골든크로스,지지선,저항선,보조지표,추세선",
       },
       {
         id: 6,
@@ -71,6 +76,6 @@ module.exports = {
   },
 
   async down(q) {
-    await q.bulkDelete("chapters", null, {});
+    await q.bulkDelete("chapter", null, {});
   },
 };
