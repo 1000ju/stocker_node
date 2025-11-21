@@ -3,8 +3,8 @@ info:
   title: Stock Edu API
   version: 1.0.0
 servers:
-  - url: http://168.107.22.83:8080/api
-    description: production (OCI VM direct, 8080 포트 노출)
+  - url: http://158.180.84.121:3000/api
+    description: production (OCI VM direct, 3000 포트 노출)
   - url: http://localhost:8080/api
     description: local development
 components:
@@ -179,10 +179,10 @@ components:
           type: array
           items:
             type: object
-            required: [quiz_id, answer]
+            required: [quiz_id, selected_option]
             properties:
               quiz_id: { type: integer, example: 1 }
-              answer: { type: integer, example: 2, description: 1~4 중 하나 }
+              selected_option: { type: integer, example: 2, description: 1~4 중 하나 }
     QuizCompleteResponse:
       type: object
       properties:
