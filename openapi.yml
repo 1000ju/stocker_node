@@ -179,10 +179,10 @@ components:
           type: array
           items:
             type: object
-            required: [quiz_id, answer]
+            required: [quiz_id, selected_option]
             properties:
               quiz_id: { type: integer, example: 1 }
-              answer: { type: integer, example: 2, description: 1~4 중 하나 }
+              selected_option: { type: integer, example: 2, description: 1~4 중 하나 }
     QuizCompleteResponse:
       type: object
       properties:
