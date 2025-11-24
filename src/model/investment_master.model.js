@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       name: { type: DataTypes.STRING(100), allowNull: false },
       bio: { type: DataTypes.TEXT, allowNull: true }, // 1소개글
       portfolio_summary: { type: DataTypes.TEXT, allowNull: true },
+      portfolio: {
+        type: DataTypes.JSON, // 포트폴리오 비중 JSON, 예: { 주식: 80, 현금: 20 }
+        allowNull: true,
+      },
       image_url: { type: DataTypes.STRING(255), allowNull: true },
       style: { type: DataTypes.STRING(100), allowNull: true }, // 사람이 읽는 스타일 설명
       type_code: { type: DataTypes.STRING(4), allowNull: false }, // "CLPD" 같은 MBIT 코드

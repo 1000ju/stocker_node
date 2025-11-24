@@ -250,6 +250,10 @@ components:
               name: { type: string }
               bio: { type: string }
               portfolio_summary: { type: string }
+              portfolio:
+                type: object
+                additionalProperties: { type: number }
+                example: { 주식: 80, 현금: 20, 선물: 0, 원자재: 0 }
               image_url: { type: string }
               style: { type: string }
               type_code: { type: string }
@@ -681,6 +685,10 @@ paths:
                     name: { type: string }
                     bio: { type: string }
                     portfolio_summary: { type: string }
+                    portfolio:
+                      type: object
+                      additionalProperties: { type: number }
+                      example: { 주식: 80, 현금: 20, 선물: 0, 원자재: 0 }
                     image_url: { type: string }
                     style: { type: string }
                     type_code: { type: string }
