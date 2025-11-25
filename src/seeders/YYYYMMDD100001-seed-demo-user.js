@@ -9,7 +9,7 @@ module.exports = {
     );
 
     if (users.length === 0) {
-      await queryInterface.bulkInsert('Users', [{
+      await queryInterface.bulkInsert('user', [{
         id: 1,
         email: 'demo@test.com',
         nickname: '데모유저',
