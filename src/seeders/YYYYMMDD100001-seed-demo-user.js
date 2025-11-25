@@ -14,8 +14,7 @@ module.exports = {
         email: 'demo@test.com',
         nickname: '데모유저',
         password: 'password123', // 암호화가 필요하다면 맞춰서 넣어야 함
-        createdAt: new Date(),
-        updatedAt: new Date()
+  
       }]);
     }
   },
