@@ -135,3 +135,4 @@ docker compose up --build
 - JWT 미들웨어가 refresh 토큰 재발급 시 `x-access-token` 헤더로 새 토큰을 내려주므로, 클라이언트는 헤더 교체 로직을 구현해야 합니다.
 - 서버는 express-session을 기본으로 탑재했지만 현재 인증은 JWT 중심입니다. Redis와 같은 외부 스토어를 연결해 세션 기반 보호 라우트로 확장할 수 있습니다.
 - `init.sql`을 통해 로컬 개발 DB를 빠르게 초기화한 뒤, 정식 환경에서는 sequelize-cli 마이그레이션을 권장합니다.
+
