@@ -1,7 +1,9 @@
 "use strict";
+
 module.exports = {
   async up(q) {
-    // portfolio: 자산 비중(%) JSON. 필요 없으면 undefined/null 유지.
+    // portfolio: 자산 비중(%) JSON.
+    // DB에 JSON 문자열로 저장하기 위해 JSON.stringify()를 사용합니다.
     await q.bulkInsert("investment_master", [
       {
         master_id: 1,
@@ -13,7 +15,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Warren_Buffett_with_Fisher_College_of_Business_Student_-_4395157720_%28cropped%29.jpg/640px-Warren_Buffett_with_Fisher_College_of_Business_Student_-_4395157720_%28cropped%29.jpg",
         style: "가치 투자",
         type_code: "CLPD",
-        portfolio: { 선물: 0, 주식: 80, 원자재: 0, 현금: 20 },
+        portfolio: JSON.stringify({ 선물: 0, 주식: 80, 원자재: 0, 현금: 20 }),
       },
       {
         master_id: 2,
@@ -25,7 +27,7 @@ module.exports = {
           "https://i.namu.wiki/i/7uOtqQoKoD3TPG5cWCOvCSbSd5r6HhZkTVo2B6Cd_A5JS8YQivTjcnMUW2CaC0cv1Thot3EcaKo55ydQabCftiSEEfkFCnpp-B6gp97HJunyQExHAt7QZCA4LwHsWMtPRMdvB5Ggpva3y0fjZwoQOw.webp",
         style: "성장주 투자",
         type_code: "ELAD",
-        portfolio: { 선물: 5, 주식: 85, 원자재: 0, 현금: 10 },
+        portfolio: JSON.stringify({ 선물: 5, 주식: 85, 원자재: 0, 현금: 10 }),
       },
       {
         master_id: 3,
@@ -37,7 +39,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Web_Summit_2018_-_Forum_-_Day_2%2C_November_7_HM1_7481_%2844858045925%29.jpg/640px-Web_Summit_2018_-_Forum_-_Day_2%2C_November_7_HM1_7481_%2844858045925%29.jpg",
         style: "자산 배분",
         type_code: "CLAD",
-        portfolio: { 선물: 55, 주식: 30, 원자재: 15, 현금: 0 },
+        portfolio: JSON.stringify({ 선물: 55, 주식: 30, 원자재: 15, 현금: 0 }),
       },
       {
         master_id: 4,
@@ -49,7 +51,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Photo_of_a_John_C._Bogle_By_Bill_Cramer.jpg/640px-Photo_of_a_John_C._Bogle_By_Bill_Cramer.jpg",
         style: "패시브 투자",
         type_code: "CLPI",
-        portfolio: { 선물: 40, 주식: 60, 원자재: 0, 현금: 0 },
+        portfolio: JSON.stringify({ 선물: 40, 주식: 60, 원자재: 0, 현금: 0 }),
       },
       {
         master_id: 5,
@@ -61,7 +63,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Benjamin_Graham_%281894-1976%29_in_1950.jpg/640px-Benjamin_Graham_%281894-1976%29_in_1950.jpg",
         style: "가치 투자",
         type_code: "CLPD",
-        portfolio: { 선물: 50, 주식: 50, 원자재: 0, 현금: 0 },
+        portfolio: JSON.stringify({ 선물: 50, 주식: 50, 원자재: 0, 현금: 0 }),
       },
       {
         master_id: 6,
@@ -73,7 +75,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Carl_Icahn%2C_1980s.jpg/640px-Carl_Icahn%2C_1980s.jpg",
         style: "행동주의 투자",
         type_code: "ESAI",
-        portfolio: { 선물: 10, 주식: 85, 원자재: 0, 현금: 5 },
+        portfolio: JSON.stringify({ 선물: 10, 주식: 85, 원자재: 0, 현금: 5 }),
       },
       {
         master_id: 7,
@@ -85,7 +87,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/David_Tepper_01.jpg/640px-David_Tepper_01.jpg",
         style: "역발상/부실자산 투자",
         type_code: "ESAD",
-        portfolio: { 선물: 20, 주식: 65, 원자재: 5, 현금: 10 },
+        portfolio: JSON.stringify({ 선물: 20, 주식: 65, 원자재: 5, 현금: 10 }),
       },
       {
         master_id: 8,
@@ -97,7 +99,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/George_Soros%2C_2002.jpg/640px-George_Soros%2C_2002.jpg",
         style: "글로벌 매크로",
         type_code: "ELAD",
-        portfolio: { 선물: 40, 주식: 30, 원자재: 15, 현금: 15 },
+        portfolio: JSON.stringify({ 선물: 40, 주식: 30, 원자재: 15, 현금: 15 }),
       },
       {
         master_id: 9,
@@ -109,7 +111,7 @@ module.exports = {
           "https://i.namu.wiki/i/6ynj1QjTx2wDeEr5swwevqw6pVsvHjLH1qLkSo2e2u2wvNkYXQtyjOXbjnLBiVxLwsFeYbmtJLr3St1lcfbrpwAh_8Grgdi0A2yZBZXzrA_klnul2Ce7H7AAUpFSOgq4AXGWre87fUiL8WiUgIIE2Q.webp",
         style: "집중 투자",
         type_code: "ELPD",
-        portfolio: { 선물: 5, 주식: 85, 원자재: 0, 현금: 10 },
+        portfolio: JSON.stringify({ 선물: 5, 주식: 85, 원자재: 0, 현금: 10 }),
       },
       {
         master_id: 10,
@@ -121,7 +123,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Jim-rogers-madrid-160610.jpg/640px-Jim-rogers-madrid-160610.jpg",
         style: "원자재 투자",
         type_code: "CLAI",
-        portfolio: { 선물: 20, 주식: 30, 원자재: 40, 현금: 10 },
+        portfolio: JSON.stringify({ 선물: 20, 주식: 30, 원자재: 40, 현금: 10 }),
       },
       {
         master_id: 11,
@@ -133,7 +135,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg/640px-Elon_Musk_Royal_Society_%28crop2%29.jpg",
         style: "혁신 기술 투자",
         type_code: "ELAI",
-        portfolio: { 선물: 0, 주식: 95, 원자재: 0, 현금: 5 },
+        portfolio: JSON.stringify({ 선물: 0, 주식: 95, 원자재: 0, 현금: 5 }),
       },
       {
         master_id: 12,
@@ -145,7 +147,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Mark_Cuban_%282024%29_%28cropped%29.jpg/640px-Mark_Cuban_%282024%29_%28cropped%29.jpg",
         style: "기술/벤처 투자",
         type_code: "ESPI",
-        portfolio: { 선물: 0, 주식: 60, 원자재: 0, 현금: 40 },
+        portfolio: JSON.stringify({ 선물: 0, 주식: 60, 원자재: 0, 현금: 40 }),
       },
       {
         master_id: 13,
@@ -157,7 +159,7 @@ module.exports = {
           "https://i.namu.wiki/i/wTMfoEe4bIIS4udhPhNHjjk7ka3IGM3FWoG4XhvjOZ05SJVjrmEcPv1nsqEAwzCSh8A7Dtb0uLPdCZMcyhWWiQj3YkxlOKqVJbfEejrF3JjNpmjHV-nFoIXsg9hR3355jpFTmRIqSy3dck4ws5DSyA.webp",
         style: "이벤트 드리븐",
         type_code: "ESPD",
-        portfolio: { 선물: 30, 주식: 50, 원자재: 10, 현금: 10 },
+        portfolio: JSON.stringify({ 선물: 30, 주식: 50, 원자재: 10, 현금: 10 }),
       },
       {
         master_id: 14,
@@ -169,7 +171,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Charlie_Munger_%28cropped%29.jpg/640px-Charlie_Munger_%28cropped%29.jpg",
         style: "가치 투자",
         type_code: "CLPD",
-        portfolio: { 선물: 0, 주식: 85, 원자재: 0, 현금: 15 },
+        portfolio: JSON.stringify({ 선물: 0, 주식: 85, 원자재: 0, 현금: 15 }),
       },
       {
         master_id: 15,
@@ -181,7 +183,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Howard_Marks_2.17.12_%28cropped%29.jpg/640px-Howard_Marks_2.17.12_%28cropped%29.jpg",
         style: "부실 채권 투자",
         type_code: "CLAD",
-        portfolio: { 선물: 70, 주식: 15, 원자재: 0, 현금: 15 },
+        portfolio: JSON.stringify({ 선물: 70, 주식: 15, 원자재: 0, 현금: 15 }),
       },
       {
         master_id: 16,
@@ -193,7 +195,7 @@ module.exports = {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Cathie_Wood_ARK_Invest_Photo.jpg/640px-Cathie_Wood_ARK_Invest_Photo.jpg",
         style: "혁신 성장주",
         type_code: "ELPI",
-        portfolio: { 선물: 0, 주식: 95, 원자재: 0, 현금: 5 },
+        portfolio: JSON.stringify({ 선물: 0, 주식: 95, 원자재: 0, 현금: 5 }),
       },
     ]);
   },
