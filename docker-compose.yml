@@ -45,6 +45,8 @@ services:
     ports:
       - "3000:3000"
     command: ["node", "server.js"]
+    volumes:
+      - ./openapi.yml:/usr/src/app/openapi.yml:ro # 로컬 openapi.yml을 컨테이너에서 사용
     networks:
       - stocker_network
 

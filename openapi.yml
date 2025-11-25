@@ -58,8 +58,8 @@ components:
             id: { type: integer, example: 1 }
             email: { type: string, example: user@example.com }
             nickname: { type: string, example: 주환 }
-            access_token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
-            refresh_token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
+            token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
+            refreshToken: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
 
     LogoutRequest:
       type: object
