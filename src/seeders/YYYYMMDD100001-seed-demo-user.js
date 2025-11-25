@@ -4,7 +4,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     // 혹시라도 있으면 패스, 없으면 생성
     const users = await queryInterface.sequelize.query(
-      "SELECT id FROM Users WHERE id = 1", 
+      "SELECT id FROM user WHERE id = 1", 
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     );
 
@@ -21,6 +21,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('Users', { id: 1 }, {});
+    await queryInterface.bulkDelete('user', { id: 1 }, {});
   }
 };
