@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      question_OX: { type: DataTypes.STRING, allowNull: false },
+      question_OX: { type: DataTypes.TEXT, allowNull: false }, // 긴 문장 대응
       is_correct: { type: DataTypes.BOOLEAN, allowNull: false },
     },
     {
