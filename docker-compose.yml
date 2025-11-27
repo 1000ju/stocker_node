@@ -29,6 +29,9 @@ services:
 
     volumes:
       - dbdata:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d:ro
+    ports:
+      - "3306:3306"
     networks:
       - stocker_network
 
